@@ -15,6 +15,7 @@ import { OutputSection } from './output_section';
 import { AgentBinarySection } from './agent_binary_section';
 import { FleetProxiesSection } from './fleet_proxies_section';
 import { AdvancedSection } from './advanced_section';
+import { RemoteAssetsSection } from './remote_assets_section';
 
 export interface SettingsPageProps {
   outputs: Output[];
@@ -53,6 +54,8 @@ export const SettingsPage: React.FunctionComponent<SettingsPageProps> = ({
       />
       <EuiSpacer size="m" />
       <FleetProxiesSection proxies={proxies} deleteFleetProxy={deleteFleetProxy} />
+      <EuiSpacer size="m" />
+      <RemoteAssetsSection />
       <EuiSpacer size="m" />
       <AdvancedSection />
     </>
