@@ -702,7 +702,22 @@ export function useOutputForm(onSucess: () => void, output?: Output, defaultOupu
       );
     }
     if (isRemoteElasticsearch) {
-      return (
+      console.log('checking validation for remote ES', syncIntegrationsInput);
+      console.log('elasticsearchUrlsValid:', elasticsearchUrlsValid);
+      console.log('additionalYamlConfigValid:', additionalYamlConfigValid);
+      console.log('nameInputValid:', nameInputValid);
+      console.log('serviceTokenInput.value:', serviceTokenInput.value);
+      console.log('serviceTokenValid:', serviceTokenValid);
+      console.log('serviceTokenSecretInput.value:', serviceTokenSecretInput.value);
+      console.log('serviceTokenSecretValid:', serviceTokenSecretValid);
+      console.log('syncIntegrationsInput.value:', syncIntegrationsInput.value);
+      console.log('kibanaURLInputValid:', kibanaURLInputValid);
+      console.log('kibanaAPIKeyInput.value:', kibanaAPIKeyInput.value);
+      console.log('kibanaAPIKeyValid:', kibanaAPIKeyValid);
+      console.log('kibanaAPIKeySecretInput.value:', kibanaAPIKeySecretInput.value);
+      console.log('kibanaAPIKeySecretValid:', kibanaAPIKeySecretValid);
+
+      const valz =
         elasticsearchUrlsValid &&
         additionalYamlConfigValid &&
         nameInputValid &&
@@ -712,8 +727,9 @@ export function useOutputForm(onSucess: () => void, output?: Output, defaultOupu
           (syncIntegrationsInput.value &&
             ((kibanaAPIKeyInput.value && kibanaAPIKeyValid) ||
               (kibanaAPIKeySecretInput.value && kibanaAPIKeySecretValid)) &&
-            kibanaURLInputValid))
-      );
+            kibanaURLInputValid));
+      console.log('value is', valz);
+      return valz;
     } else {
       // validate ES
       return (
@@ -759,8 +775,10 @@ export function useOutputForm(onSucess: () => void, output?: Output, defaultOupu
   ]);
 
   const submit = useCallback(async () => {
+    console.log('submitting!!');
     try {
       if (!validate()) {
+        console.log('going to return!');
         return;
       }
       setIsloading(true);

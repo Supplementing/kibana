@@ -8,10 +8,16 @@ import React from 'react';
 import { EuiTitle, EuiSpacer, EuiText, EuiLink } from '@elastic/eui';
 
 import { FormattedMessage } from '@kbn/i18n-react';
+import type { Output } from '../../../../types';
 
 import { RemoteAssetsBreakdown } from '../remote_assets';
-
-export const RemoteAssetsSection: React.FunctionComponent<{}> = () => {
+export interface RemoteAssetsSectionProps {
+  outputs: Output[];
+}
+export const RemoteAssetsSection: React.FunctionComponent<RemoteAssetsSectionProps> = ({
+  outputs,
+}) => {
+  console.log('the outputs are ', outputs);
   return (
     <>
       <EuiTitle size="s">

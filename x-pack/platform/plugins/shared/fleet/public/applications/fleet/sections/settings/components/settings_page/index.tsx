@@ -55,7 +55,7 @@ export const SettingsPage: React.FunctionComponent<SettingsPageProps> = ({
       <EuiSpacer size="m" />
       <FleetProxiesSection proxies={proxies} deleteFleetProxy={deleteFleetProxy} />
       <EuiSpacer size="m" />
-      <RemoteAssetsSection />
+      <RemoteAssetsSection outputs={outputs} />
       <EuiSpacer size="m" />
       <AdvancedSection />
     </>

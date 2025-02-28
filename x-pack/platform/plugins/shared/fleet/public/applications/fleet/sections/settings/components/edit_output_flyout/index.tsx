@@ -77,6 +77,7 @@ export const EditOutputFlyout: React.FunctionComponent<EditOutputFlyoutProps> = 
   useBreadcrumbs('settings');
   const form = useOutputForm(onClose, output, defaultOuput);
   const inputs = form.inputs;
+
   const { docLinks, cloud } = useStartServices();
   const fleetStatus = useFleetStatus();
 
@@ -389,6 +390,17 @@ export const EditOutputFlyout: React.FunctionComponent<EditOutputFlyoutProps> = 
                       </strong>
                     ),
                   }}
+                />
+              }
+            />
+          </EuiFormRow>
+          <EuiFormRow>
+            <EuiSwitch
+              {...inputs.syncIntegrationsInput.props}
+              label={
+                <FormattedMessage
+                  id="xpack.fleet.settings.editOutputFlyout.integrationSyncLabel"
+                  defaultMessage="Sync Integrations"
                 />
               }
             />
