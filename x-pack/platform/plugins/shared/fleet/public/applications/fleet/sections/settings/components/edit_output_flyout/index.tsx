@@ -394,17 +394,6 @@ export const EditOutputFlyout: React.FunctionComponent<EditOutputFlyoutProps> = 
               }
             />
           </EuiFormRow>
-          <EuiFormRow>
-            <EuiSwitch
-              {...inputs.syncIntegrationsInput.props}
-              label={
-                <FormattedMessage
-                  id="xpack.fleet.settings.editOutputFlyout.integrationSyncLabel"
-                  defaultMessage="Sync Integrations"
-                />
-              }
-            />
-          </EuiFormRow>
           {supportsPresets && (
             <>
               <EuiSpacer size="l" />
