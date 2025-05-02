@@ -45,6 +45,7 @@ export const AgentStatuses = [
   'unenrolling',
   'unenrolled',
   'updating',
+  'unexpected_upgrade',
   'degraded',
   'uninstalled',
   'orphaned',

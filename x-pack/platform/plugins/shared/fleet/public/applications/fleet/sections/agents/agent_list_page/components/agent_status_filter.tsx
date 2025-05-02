@@ -52,6 +52,12 @@ const statusFilters = [
     }),
   },
   {
+    status: 'unexpected_upgrade',
+    label: i18n.translate('xpack.fleet.agentList.statusUnexpectedUpgradeFilterText', {
+      defaultMessage: 'Unexpected Upgrade',
+    }),
+  },
+  {
     status: 'offline',
     label: i18n.translate('xpack.fleet.agentList.statusOfflineFilterText', {
       defaultMessage: 'Offline',

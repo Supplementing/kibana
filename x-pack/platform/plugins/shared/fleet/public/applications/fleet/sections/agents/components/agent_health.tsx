@@ -105,6 +105,15 @@ function getStatusComponent({
           />
         </EuiBadge>
       );
+    case 'unexpected_upgrade':
+      return (
+        <EuiBadge color="warning" {...restOfProps}>
+          <FormattedMessage
+            id="xpack.fleet.agentHealth.unexpectedUpgradeStatusText"
+            defaultMessage="Unexpected"
+          />
+        </EuiBadge>
+      );
     case 'unenrolled':
       return (
         <EuiBadge color={euiVars.euiColorDisabled} {...restOfProps}>
@@ -135,6 +144,7 @@ export const AgentHealth: React.FunctionComponent<Props> = ({
   fromDetails,
   ...restOfProps
 }) => {
+  console.log('the agent on agent health', agent);
   const { last_checkin: lastCheckIn, last_checkin_message: lastCheckInMessage } = agent;
   const msLastCheckIn = new Date(lastCheckIn || 0).getTime();
   const lastCheckInMessageText = lastCheckInMessage ? (

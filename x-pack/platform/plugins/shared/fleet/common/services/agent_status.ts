@@ -60,6 +60,10 @@ export function buildKueryForUpdatingAgents(): string {
   return '(status:updating or status:unenrolling or status:enrolling)';
 }
 
+export function buildKueryForUnexpectedUpgradeAgents(): string {
+  return 'status:unexpected_upgrade';
+}
+
 export function buildKueryForInactiveAgents() {
   return 'status:inactive';
 }

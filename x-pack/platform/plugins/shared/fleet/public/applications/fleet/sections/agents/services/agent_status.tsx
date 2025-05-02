@@ -16,6 +16,7 @@ export const AGENT_STATUSES: SimplifiedAgentStatus[] = [
   'unhealthy',
   'orphaned',
   'updating',
+  'unexpected_upgrade',
   'offline',
   'inactive',
   'unenrolled',
@@ -49,6 +50,10 @@ export function getColorForAgentStatus(
       return isAmsterdam
         ? euiTheme.colors.vis.euiColorVisBehindText1
         : euiTheme.colors.backgroundFilledPrimary;
+    case 'unexpected_upgrade':
+      return isAmsterdam
+        ? euiTheme.colors.vis.euiColorVisBehindText1
+        : euiTheme.colors.backgroundFilledWarning;
     case 'unenrolled':
       return euiTheme.colors.backgroundBaseDisabled;
     case 'uninstalled':
@@ -91,6 +96,10 @@ export function getLabelForAgentStatus(agentStatus: SimplifiedAgentStatus): stri
     case 'updating':
       return i18n.translate('xpack.fleet.agentStatus.updatingLabel', {
         defaultMessage: 'Updating',
+      });
+    case 'unexpected_upgrade':
+      return i18n.translate('xpack.fleet.agentStatus.updatingLabel', {
+        defaultMessage: 'Unexpected Upgrade',
       });
     default:
       throw new Error(`Unsupported Agent status ${agentStatus}`);

@@ -123,6 +123,7 @@ export function useFetchAgentsData() {
     'unhealthy',
     'orphaned',
     'updating',
+    'unexpected_upgrade',
     'offline',
     ...(urlHasInactive ? ['inactive'] : []),
   ]);

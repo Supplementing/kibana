@@ -137,6 +137,19 @@ function _buildSource(
       )
     ) {
       emit('updating');
+    } else if (
+      ${field('policy_revision_idx')}.size() == 0 || (
+        ${field('upgrade_started_at')}.size() > 0 &&
+        ${field('upgraded_at')}.size() > 0 && (
+        !doc.containsKey('upgrade_details') || (
+        doc.containsKey('upgrade_details') && (
+        ${field('upgrade_details')}.value.containsKey('action_id') &&
+        ${field('upgrade_details')}.value.get('action_id').size == 0)
+        )
+      )
+    )
+    ) {
+      emit('unexpected_upgrade');
     } else if (${field('last_checkin')}.size() == 0) {
       emit('enrolling');
     } else if (${field('unenrollment_started_at')}.size() > 0) {

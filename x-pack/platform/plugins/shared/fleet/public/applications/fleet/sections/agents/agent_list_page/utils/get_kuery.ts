@@ -80,6 +80,8 @@ export const getKuery = ({
             return AgentStatusKueryHelper.buildKueryForOfflineAgents();
           case 'updating':
             return AgentStatusKueryHelper.buildKueryForUpdatingAgents();
+          case 'unexpected_upgrade':
+            return AgentStatusKueryHelper.buildKueryForUnexpectedUpgradeAgents();
           case 'inactive':
             return AgentStatusKueryHelper.buildKueryForInactiveAgents();
           case 'unenrolled':

@@ -26,6 +26,7 @@ export type SimplifiedAgentStatus =
   | 'unhealthy'
   | 'orphaned'
   | 'updating'
+  | 'unexpected_upgrade'
   | 'offline'
   | 'inactive'
   | 'unenrolled'

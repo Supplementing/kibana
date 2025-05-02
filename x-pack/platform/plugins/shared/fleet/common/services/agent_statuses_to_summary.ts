@@ -19,5 +19,6 @@ export function agentStatusesToSummary(
     unenrolled: statuses.unenrolled,
     orphaned: statuses.orphaned,
     uninstalled: statuses.uninstalled,
+    unexpected_upgrade: statuses.unexpected_upgrade,
   };
 }
