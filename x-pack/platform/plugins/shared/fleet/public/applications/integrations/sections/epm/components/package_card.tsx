@@ -66,6 +66,22 @@ const DEPRECATED_TOOLTIP = i18n.translate('xpack.fleet.packageCard.deprecatedToo
     'This integration is deprecated and may be removed in a future release. Consider using an alternative.',
 });
 
+// Deprecated badge styling - pink/red pill with dark contrasting text
+const DEPRECATED_BADGE_STYLES = {
+  background: '#BD271E',
+  text: '#FFFFFF',
+};
+
+// Pill badge styles matching release badges
+const pillBadgeStyles = css`
+  border-radius: 12px;
+  padding: 0 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+`;
+
 export function PackageCard({
   description,
   name,
@@ -118,7 +134,14 @@ export function PackageCard({
     lifecycleBadges.push(
       <EuiFlexItem grow={false} key="deprecated-badge">
         <EuiToolTip display="inlineBlock" content={DEPRECATED_TOOLTIP} title={DEPRECATED_LABEL}>
-          <EuiBadge color="#BD271E" tabIndex={0}>
+          <EuiBadge
+            color={DEPRECATED_BADGE_STYLES.background}
+            css={css`
+              ${pillBadgeStyles}
+              color: ${DEPRECATED_BADGE_STYLES.text} !important;
+            `}
+            tabIndex={0}
+          >
             {DEPRECATED_LABEL}
           </EuiBadge>
         </EuiToolTip>

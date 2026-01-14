@@ -7,6 +7,7 @@
 
 import React from 'react';
 import { EuiBadge, EuiToolTip } from '@elastic/eui';
+import { css } from '@emotion/react';
 import { i18n } from '@kbn/i18n';
 
 import type { IntegrationCardReleaseLabel } from '../../common/types';
@@ -36,11 +37,13 @@ const RELEASE_BADGE_DESCRIPTION: { [key in Exclude<IntegrationCardReleaseLabel, 
   }),
 };
 
-// Colors for lifecycle badges (colored backgrounds)
-const RELEASE_BADGE_COLOR: { [key in Exclude<IntegrationCardReleaseLabel, 'ga'>]: string } = {
-  beta: '#F5A700', // Yellow/amber for beta
-  preview: '#6092C0', // Blue for technical preview
-  rc: '#54B399', // Green for release candidate
+// Colors for lifecycle badges - background and contrasting text colors
+const RELEASE_BADGE_STYLES: {
+  [key in Exclude<IntegrationCardReleaseLabel, 'ga'>]: { background: string; text: string };
+} = {
+  beta: { background: '#F5A700', text: '#FFFFFF' }, // Yellow/amber with white text
+  preview: { background: '#6092C0', text: '#FFFFFF' }, // Blue with white text
+  rc: { background: '#54B399', text: '#FFFFFF' }, // Green with white text
 };
 
 export const HeaderReleaseBadge: React.FC<{ release: IntegrationCardReleaseLabel }> = ({
@@ -56,6 +59,16 @@ export const HeaderReleaseBadge: React.FC<{ release: IntegrationCardReleaseLabel
   );
 };
 
+// Pill-shaped badge styles
+const pillBadgeStyles = css`
+  border-radius: 12px;
+  padding: 0 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+`;
+
 export const InlineReleaseBadge: React.FC<{
   release: IntegrationCardReleaseLabel;
   colored?: boolean;
@@ -63,7 +76,7 @@ export const InlineReleaseBadge: React.FC<{
   if (release === 'ga') return null;
 
   const releaseLabel = RELEASE_BADGE_LABEL[release];
-  const badgeColor = colored ? RELEASE_BADGE_COLOR[release] : 'hollow';
+  const styles = RELEASE_BADGE_STYLES[release];
 
   return (
     <EuiToolTip
@@ -71,7 +84,18 @@ export const InlineReleaseBadge: React.FC<{
       content={RELEASE_BADGE_DESCRIPTION[release]}
       title={releaseLabel}
     >
-      <EuiBadge color={badgeColor} tabIndex={0}>
+      <EuiBadge
+        color={colored ? styles.background : 'hollow'}
+        css={
+          colored
+            ? css`
+                ${pillBadgeStyles}
+                color: ${styles.text} !important;
+              `
+            : pillBadgeStyles
+        }
+        tabIndex={0}
+      >
         {releaseLabel}
       </EuiBadge>
     </EuiToolTip>
