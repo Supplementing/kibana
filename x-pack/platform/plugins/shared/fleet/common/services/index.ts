@@ -106,3 +106,5 @@ export {
 export { removeSOAttributes, getSortConfig, checkTargetVersionsValidity } from './agent_utils';
 
 export { isAwsCloudConnectorVars, isAzureCloudConnectorVars } from './cloud_connector_helpers';
+
+export { getSignalTypesFromDataStreams, type SignalType } from './data_stream_signal_types';

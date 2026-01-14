@@ -12,8 +12,7 @@ import {
   EuiCard,
   EuiFlexGroup,
   EuiFlexItem,
-  EuiSpacer,
-  EuiTitle,
+  EuiText,
   EuiToolTip,
   useEuiTheme,
 } from '@elastic/eui';
@@ -36,13 +35,36 @@ import { InlineReleaseBadge } from '../../../components';
 import { useStartServices } from '../../../hooks';
 import { INTEGRATIONS_BASE_PATH, INTEGRATIONS_PLUGIN_ID } from '../../../constants';
 
-import {
-  InstallationStatus,
-  getLineClampStyles,
-  shouldShowInstallationStatus,
-} from './installation_status';
+import { InstallationStatus, getLineClampStyles } from './installation_status';
 
 export type PackageCardProps = IntegrationCardItem;
+
+const SIGNAL_BADGE_LABELS: Record<string, string> = {
+  logs: i18n.translate('xpack.fleet.packageCard.signalBadge.logs', {
+    defaultMessage: 'Logs',
+  }),
+  metrics: i18n.translate('xpack.fleet.packageCard.signalBadge.metrics', {
+    defaultMessage: 'Metrics',
+  }),
+  traces: i18n.translate('xpack.fleet.packageCard.signalBadge.traces', {
+    defaultMessage: 'Traces',
+  }),
+  synthetics: i18n.translate('xpack.fleet.packageCard.signalBadge.synthetics', {
+    defaultMessage: 'Synthetics',
+  }),
+  profiling: i18n.translate('xpack.fleet.packageCard.signalBadge.profiling', {
+    defaultMessage: 'Profiling',
+  }),
+};
+
+const DEPRECATED_LABEL = i18n.translate('xpack.fleet.packageCard.deprecatedLabel', {
+  defaultMessage: 'Deprecated',
+});
+
+const DEPRECATED_TOOLTIP = i18n.translate('xpack.fleet.packageCard.deprecatedTooltip', {
+  defaultMessage:
+    'This integration is deprecated and may be removed in a future release. Consider using an alternative.',
+});
 
 export function PackageCard({
   description,
@@ -59,6 +81,7 @@ export function PackageCard({
   isReauthorizationRequired,
   isUnverified,
   isUpdateAvailable,
+  isDeprecated,
   showLabels = true,
   showInstallationStatus,
   showCompressedInstallationStatus,
@@ -70,39 +93,62 @@ export function PackageCard({
   titleLineClamp,
   titleBadge,
   titleSize = 'xs',
-  descriptionLineClamp,
+  descriptionLineClamp = 2,
   maxCardHeight,
   minCardHeight,
   showDescription = true,
   showReleaseBadge = true,
   hasDataStreams,
+  signalTypes,
 }: PackageCardProps) {
   const theme = useEuiTheme();
-  let releaseBadge: React.ReactNode | null = null;
+
+  // Lifecycle badges (top right): beta, deprecated
+  const lifecycleBadges: React.ReactNode[] = [];
+
   if (release && release !== 'ga' && showReleaseBadge) {
-    releaseBadge = (
-      <EuiFlexItem grow={false}>
-        <EuiSpacer size="xs" />
-        <span>
-          <InlineReleaseBadge release={release} />
-        </span>
+    lifecycleBadges.push(
+      <EuiFlexItem grow={false} key="release-badge">
+        <InlineReleaseBadge release={release} />
       </EuiFlexItem>
     );
   }
 
+  if (isDeprecated) {
+    lifecycleBadges.push(
+      <EuiFlexItem grow={false} key="deprecated-badge">
+        <EuiToolTip display="inlineBlock" content={DEPRECATED_TOOLTIP} title={DEPRECATED_LABEL}>
+          <EuiBadge color="#BD271E" tabIndex={0}>
+            {DEPRECATED_LABEL}
+          </EuiBadge>
+        </EuiToolTip>
+      </EuiFlexItem>
+    );
+  }
+
+  // Signal badges (bottom right): logs, metrics, etc.
+  const signalBadges: React.ReactNode[] = [];
+  if (signalTypes && signalTypes.length > 0) {
+    signalTypes.forEach((signalType) => {
+      signalBadges.push(
+        <EuiFlexItem grow={false} key={`signal-${signalType}`}>
+          <EuiBadge color="hollow">{SIGNAL_BADGE_LABELS[signalType] || signalType}</EuiBadge>
+        </EuiFlexItem>
+      );
+    });
+  }
+
+  // Other status badges (kept for backward compatibility)
   let verifiedBadge: React.ReactNode | null = null;
   if (isUnverified && showLabels) {
     verifiedBadge = (
       <EuiFlexItem grow={false}>
-        <EuiSpacer size="xs" />
-        <span>
-          <EuiBadge color="warning">
-            <FormattedMessage
-              id="xpack.fleet.packageCard.unverifiedLabel"
-              defaultMessage="Unverified"
-            />
-          </EuiBadge>
-        </span>
+        <EuiBadge color="warning">
+          <FormattedMessage
+            id="xpack.fleet.packageCard.unverifiedLabel"
+            defaultMessage="Unverified"
+          />
+        </EuiBadge>
       </EuiFlexItem>
     );
   }
@@ -111,21 +157,15 @@ export function PackageCard({
   if (isReauthorizationRequired && showLabels) {
     hasDeferredInstallationsBadge = (
       <EuiFlexItem grow={false}>
-        <EuiSpacer size="xs" />
-        <span>
-          <EuiToolTip
-            display="inlineBlock"
-            content={DEFERRED_ASSETS_WARNING_MSG}
-            title={DEFERRED_ASSETS_WARNING_LABEL}
-            css={css`
-              width: 100%;
-            `}
-          >
-            <EuiBadge color="warning" tabIndex={0}>
-              {DEFERRED_ASSETS_WARNING_LABEL}{' '}
-            </EuiBadge>
-          </EuiToolTip>
-        </span>
+        <EuiToolTip
+          display="inlineBlock"
+          content={DEFERRED_ASSETS_WARNING_MSG}
+          title={DEFERRED_ASSETS_WARNING_LABEL}
+        >
+          <EuiBadge color="warning" tabIndex={0}>
+            {DEFERRED_ASSETS_WARNING_LABEL}
+          </EuiBadge>
+        </EuiToolTip>
       </EuiFlexItem>
     );
   }
@@ -134,15 +174,12 @@ export function PackageCard({
   if (isUpdateAvailable && showLabels) {
     updateAvailableBadge = (
       <EuiFlexItem grow={false}>
-        <EuiSpacer size="xs" />
-        <span>
-          <EuiBadge color="hollow" iconType="sortUp">
-            <FormattedMessage
-              id="xpack.fleet.packageCard.updateAvailableLabel"
-              defaultMessage="Update available"
-            />
-          </EuiBadge>
-        </span>
+        <EuiBadge color="hollow" iconType="sortUp">
+          <FormattedMessage
+            id="xpack.fleet.packageCard.updateAvailableLabel"
+            defaultMessage="Update available"
+          />
+        </EuiBadge>
       </EuiFlexItem>
     );
   }
@@ -169,15 +206,12 @@ export function PackageCard({
   if (type === 'content') {
     contentBadge = (
       <EuiFlexItem grow={false}>
-        <EuiSpacer size="xs" />
-        <span>
-          <EuiBadge color="hollow">
-            <FormattedMessage
-              id="xpack.fleet.packageCard.contentPackageLabel"
-              defaultMessage="Content only"
-            />
-          </EuiBadge>
-        </span>
+        <EuiBadge color="hollow">
+          <FormattedMessage
+            id="xpack.fleet.packageCard.contentPackageLabel"
+            defaultMessage="Content only"
+          />
+        </EuiBadge>
       </EuiFlexItem>
     );
   }
@@ -197,21 +231,22 @@ export function PackageCard({
     }
   };
 
-  const installationStatusVisible = shouldShowInstallationStatus({
-    installStatus,
-    showInstallationStatus,
-    isActive: hasDataStreams,
-  });
-
   const testid = `integration-card:${id}`;
+
+  // Check if we have any badges to show
+  const hasSignalBadges = signalBadges.length > 0;
+
   return (
     <TrackApplicationView viewId={testid}>
       <EuiCard
-        // EUI TODO: Custom component CSS
-        // Min-height is roughly 3 lines of content.
-        // This keeps the cards from looking overly unbalanced because of content differences.
         css={css`
           position: relative;
+          min-height: ${minCardHeight ? `${minCardHeight}px` : '124px'};
+          max-height: ${maxCardHeight ? `${maxCardHeight}px` : null};
+          overflow: ${maxCardHeight ? 'hidden' : null};
+          border-color: ${isQuickstart ? theme.euiTheme.colors.accent : null};
+
+          /* Override default card content styling */
           [class*='euiCard__content'] {
             display: flex;
             flex-direction: column;
@@ -219,33 +254,23 @@ export function PackageCard({
             overflow: hidden;
           }
 
+          /* Hide the default description - we'll render our own */
           [class*='euiCard__description'] {
-            flex-grow: 1;
-            ${descriptionLineClamp
-              ? installationStatusVisible
-                ? getLineClampStyles(1) // Show only one line of description if installation status is shown
-                : getLineClampStyles(descriptionLineClamp)
-              : ''}
+            display: none;
           }
 
           [class*='euiCard__titleButton'] {
-            width: ${installationStatusVisible
-              ? `calc(100% - ${theme.euiTheme.base * 4}px)`
-              : '100%'};
-            ${getLineClampStyles(titleLineClamp)}
+            width: 100%;
           }
-
-          min-height: ${minCardHeight ? `${minCardHeight}px` : '127px'};
-          border-color: ${isQuickstart ? theme.euiTheme.colors.accent : null};
-          max-height: ${maxCardHeight ? `${maxCardHeight}px` : null};
-          overflow: ${maxCardHeight ? 'hidden' : null};
         `}
         data-test-subj={testid}
         betaBadgeProps={quickstartBadge(isQuickstart)}
         layout="horizontal"
-        title={<CardTitle title={title} titleBadge={titleBadge} />}
+        title={
+          <CardTitle title={title} titleBadge={titleBadge} lifecycleBadges={lifecycleBadges} />
+        }
         titleSize={titleSize}
-        description={showDescription ? description : ''}
+        description=""
         hasBorder
         icon={
           <CardIcon
@@ -259,68 +284,108 @@ export function PackageCard({
         onClick={onClickProp ?? onCardClick}
       >
         <EuiFlexGroup
-          gutterSize="xs"
-          wrap={true}
+          direction="column"
+          gutterSize="s"
           css={css`
-            width: ${installationStatusVisible
-              ? `calc(100% - ${theme.euiTheme.base * 4}px)`
-              : '100%'};
-            overflow-x: hidden;
-            text-overflow: ellipsis;
-
-            & > .euiFlexItem {
-              min-width: 0;
-            }
-
-            ${isCollectionCard
-              ? `& > .euiFlexItem:last-child {
-              min-width: auto;
-            }`
-              : ''}
+            height: 100%;
           `}
         >
-          {showLabels && extraLabelsBadges ? extraLabelsBadges : null}
-          {verifiedBadge}
-          {updateAvailableBadge}
-          {contentBadge}
-          {releaseBadge}
-          {hasDeferredInstallationsBadge}
-          {collectionButton}
-          <InstallationStatus
-            installStatus={installStatus}
-            showInstallationStatus={showInstallationStatus}
-            compressed={showCompressedInstallationStatus}
-            hasDataStreams={hasDataStreams}
-          />
+          {/* Description */}
+          <EuiFlexItem grow>
+            {showDescription && description && (
+              <EuiText
+                size="s"
+                color="subdued"
+                css={css`
+                  ${getLineClampStyles(descriptionLineClamp)}
+                `}
+              >
+                {description}
+              </EuiText>
+            )}
+          </EuiFlexItem>
+
+          {/* Bottom row: Status badges on left, signal badges on right */}
+          <EuiFlexItem grow={false}>
+            <EuiFlexGroup gutterSize="s" justifyContent="spaceBetween" alignItems="center">
+              {/* Status badges (bottom left) */}
+              <EuiFlexItem grow={false}>
+                <EuiFlexGroup gutterSize="xs" wrap>
+                  {showLabels && extraLabelsBadges ? extraLabelsBadges : null}
+                  {verifiedBadge}
+                  {updateAvailableBadge}
+                  {contentBadge}
+                  {hasDeferredInstallationsBadge}
+                  {collectionButton}
+                </EuiFlexGroup>
+              </EuiFlexItem>
+
+              {/* Signal badges (bottom right) */}
+              {hasSignalBadges && (
+                <EuiFlexItem grow={false}>
+                  <EuiFlexGroup gutterSize="xs" wrap={false}>
+                    {signalBadges}
+                  </EuiFlexGroup>
+                </EuiFlexItem>
+              )}
+            </EuiFlexGroup>
+          </EuiFlexItem>
         </EuiFlexGroup>
+
+        <InstallationStatus
+          installStatus={installStatus}
+          showInstallationStatus={showInstallationStatus}
+          compressed={showCompressedInstallationStatus}
+          hasDataStreams={hasDataStreams}
+        />
       </EuiCard>
     </TrackApplicationView>
   );
 }
 
-const CardTitle = React.memo<Pick<IntegrationCardItem, 'title' | 'titleBadge'>>(
-  ({ title, titleBadge }) => {
-    if (!titleBadge) {
-      return title;
-    }
-    return (
-      <EuiFlexGroup
-        direction="row"
-        alignItems="flexStart"
-        justifyContent="spaceBetween"
-        gutterSize="s"
-        responsive={false}
-      >
-        <EuiFlexItem>
-          <EuiTitle>
-            <h3>{title}</h3>
-          </EuiTitle>
-        </EuiFlexItem>
-        <EuiFlexItem grow={false}>{titleBadge}</EuiFlexItem>
-      </EuiFlexGroup>
-    );
+interface CardTitleProps extends Pick<IntegrationCardItem, 'title' | 'titleBadge'> {
+  lifecycleBadges?: React.ReactNode[];
+}
+
+const CardTitle = React.memo<CardTitleProps>(({ title, titleBadge, lifecycleBadges }) => {
+  const hasLifecycleBadges = lifecycleBadges && lifecycleBadges.length > 0;
+
+  if (!titleBadge && !hasLifecycleBadges) {
+    return title;
   }
-);
+
+  return (
+    <EuiFlexGroup
+      direction="row"
+      alignItems="center"
+      justifyContent="spaceBetween"
+      gutterSize="s"
+      responsive={false}
+      wrap={false}
+    >
+      <EuiFlexItem grow={false} style={{ minWidth: 0 }}>
+        <span
+          style={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            display: 'block',
+          }}
+        >
+          {title}
+        </span>
+      </EuiFlexItem>
+      {(hasLifecycleBadges || titleBadge) && (
+        <EuiFlexItem grow={false}>
+          <EuiFlexGroup gutterSize="xs" wrap={false} alignItems="center">
+            {lifecycleBadges}
+            {titleBadge && <EuiFlexItem grow={false}>{titleBadge}</EuiFlexItem>}
+          </EuiFlexGroup>
+        </EuiFlexItem>
+      )}
+    </EuiFlexGroup>
+  );
+});
 
 function quickstartBadge(isQuickstart: boolean): { label: string; color: 'accent' } | undefined {
   return isQuickstart

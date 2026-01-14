@@ -23,7 +23,11 @@ import type {
 } from '@kbn/custom-integrations-plugin/common';
 
 import { hasDeferredInstallations } from '../../../../../../services/has_deferred_installations';
-import { getPackageReleaseLabel } from '../../../../../../../common/services';
+import {
+  getPackageReleaseLabel,
+  getSignalTypesFromDataStreams,
+  type SignalType,
+} from '../../../../../../../common/services';
 
 import { installationStatuses } from '../../../../../../../common/constants';
 import type {
@@ -55,6 +59,7 @@ export interface IntegrationCardItem {
   isReauthorizationRequired?: boolean;
   isUnverified?: boolean;
   isUpdateAvailable?: boolean;
+  isDeprecated?: boolean;
   maxCardHeight?: number;
   minCardHeight?: number;
   name: string;
@@ -65,6 +70,8 @@ export interface IntegrationCardItem {
   showCompressedInstallationStatus?: boolean;
   showLabels?: boolean;
   showReleaseBadge?: boolean;
+  // Signal types derived from data_streams (logs, metrics, etc.)
+  signalTypes?: SignalType[];
   title: string;
   // Security Solution uses this prop to determine how many lines the card title should be truncated
   titleLineClamp?: number;
@@ -126,6 +133,14 @@ export const mapToCard = ({
     extraLabelsBadges = getIntegrationLabels(item);
   }
 
+  // Extract signal types from data_streams
+  const signalTypes =
+    'data_streams' in item ? getSignalTypesFromDataStreams(item.data_streams) : [];
+
+  // Check for deprecated status - ready for future EPR API support
+  // When the EPR API adds lifecycle_status field, update this to check: item.lifecycle_status === 'deprecated'
+  const isDeprecated = false;
+
   const cardResult: IntegrationCardItem = {
     id: `${item.type === 'ui_link' ? 'ui_link' : 'epr'}:${item.id}`,
     description: item.description || '',
@@ -142,7 +157,9 @@ export const mapToCard = ({
     isReauthorizationRequired,
     isUnverified,
     isUpdateAvailable,
+    isDeprecated,
     extraLabelsBadges,
+    signalTypes,
   };
 
   if (item.type === 'integration') {

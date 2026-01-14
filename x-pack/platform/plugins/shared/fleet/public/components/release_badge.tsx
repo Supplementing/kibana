@@ -36,6 +36,13 @@ const RELEASE_BADGE_DESCRIPTION: { [key in Exclude<IntegrationCardReleaseLabel, 
   }),
 };
 
+// Colors for lifecycle badges (colored backgrounds)
+const RELEASE_BADGE_COLOR: { [key in Exclude<IntegrationCardReleaseLabel, 'ga'>]: string } = {
+  beta: '#F5A700', // Yellow/amber for beta
+  preview: '#6092C0', // Blue for technical preview
+  rc: '#54B399', // Green for release candidate
+};
+
 export const HeaderReleaseBadge: React.FC<{ release: IntegrationCardReleaseLabel }> = ({
   release,
 }) => {
@@ -49,12 +56,14 @@ export const HeaderReleaseBadge: React.FC<{ release: IntegrationCardReleaseLabel
   );
 };
 
-export const InlineReleaseBadge: React.FC<{ release: IntegrationCardReleaseLabel }> = ({
-  release,
-}) => {
+export const InlineReleaseBadge: React.FC<{
+  release: IntegrationCardReleaseLabel;
+  colored?: boolean;
+}> = ({ release, colored = true }) => {
   if (release === 'ga') return null;
 
   const releaseLabel = RELEASE_BADGE_LABEL[release];
+  const badgeColor = colored ? RELEASE_BADGE_COLOR[release] : 'hollow';
 
   return (
     <EuiToolTip
@@ -62,7 +71,7 @@ export const InlineReleaseBadge: React.FC<{ release: IntegrationCardReleaseLabel
       content={RELEASE_BADGE_DESCRIPTION[release]}
       title={releaseLabel}
     >
-      <EuiBadge color="hollow" tabIndex={0}>
+      <EuiBadge color={badgeColor} tabIndex={0}>
         {releaseLabel}
       </EuiBadge>
     </EuiToolTip>
