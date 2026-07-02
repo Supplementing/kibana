@@ -256,7 +256,7 @@ describe('AgentPolicyDeleteProvider', () => {
 
     fireEvent.click(utils.getByTestId('confirmModalCancelButton'));
     await waitFor(() => {
-      expect(utils.queryByTestId('deleteAgentPolicyNameCallout')).not.toBeInTheDocument();
+      expect(utils.queryByTestId('confirmModalTitleText')).not.toBeInTheDocument();
     });
     expect(mutateAsyncMock).not.toHaveBeenCalled();
   });
