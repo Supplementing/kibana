@@ -5,7 +5,7 @@
  * 2.0.
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import useSessionStorage from 'react-use/lib/useSessionStorage';
 import {
   EuiButton,
@@ -33,6 +33,7 @@ import { useServiceDataDetection } from './use_service_data_detection';
 import { DeploymentSummary } from './deployment_summary';
 import { AgentSetupCallout } from './agent_setup_callout';
 import { InstalledContent } from './installed_content';
+import { TakeMeToMyDataModal } from './take_me_to_my_data_modal';
 
 const DEFAULT_SERVICE_SETTINGS: ServiceSettingsPersistedState = {
   globalRegion: '',
@@ -46,6 +47,8 @@ interface DetectAndReviewStepProps {
 
 export function DetectAndReviewStep({ onContinue, onBack }: DetectAndReviewStepProps) {
   useKibana<CoreStart & { cloud?: CloudStart }>();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const { servicesStep, awsServicesMap, deploymentMethod } = useOnboardingFlow();
   const { selectedServiceIds } = servicesStep;
@@ -150,7 +153,7 @@ export function DetectAndReviewStep({ onContinue, onBack }: DetectAndReviewStepP
             fill
             iconType="sortRight"
             iconSide="right"
-            onClick={onContinue}
+            onClick={() => setIsModalOpen(true)}
             data-test-subj="detectAndReviewStep-continueButton"
           >
             <FormattedMessage
@@ -160,6 +163,18 @@ export function DetectAndReviewStep({ onContinue, onBack }: DetectAndReviewStepP
           </EuiButton>
         </EuiFlexItem>
       </EuiFlexGroup>
+
+      {/* ── Take me to my data modal ─────────────────────────────────── */}
+      {isModalOpen && (
+        <TakeMeToMyDataModal
+          installedKibana={installedKibana}
+          installedEs={installedEs}
+          onClose={() => {
+            setIsModalOpen(false);
+            onContinue();
+          }}
+        />
+      )}
     </div>
   );
 }

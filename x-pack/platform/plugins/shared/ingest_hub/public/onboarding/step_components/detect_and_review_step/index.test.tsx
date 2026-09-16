@@ -33,6 +33,16 @@ jest.mock('./installed_content', () => ({
   InstalledContent: () => <div data-test-subj="mock-installed-content" />,
 }));
 
+jest.mock('./take_me_to_my_data_modal', () => ({
+  TakeMeToMyDataModal: ({ onClose }: { onClose: () => void }) => (
+    <div data-test-subj="mock-take-me-to-my-data-modal">
+      <button data-test-subj="mock-modal-doneButton" onClick={onClose}>
+        Done
+      </button>
+    </div>
+  ),
+}));
+
 jest.mock('./agent_setup_callout', () => ({
   AgentSetupCallout: () => (
     <div data-test-subj="mock-agent-callout">
@@ -130,12 +140,24 @@ describe('DetectAndReviewStep', () => {
       expect(btn).not.toBeDisabled();
     });
 
-    it('calls onContinue when clicked', () => {
+    it('opens the TakeMeToMyDataModal when clicked — does not call onContinue immediately', () => {
+      setupMocks();
+      const onContinue = jest.fn();
+      renderStep({ onContinue });
+      expect(screen.queryByTestId('mock-take-me-to-my-data-modal')).not.toBeInTheDocument();
+      fireEvent.click(screen.getByTestId('detectAndReviewStep-continueButton'));
+      expect(screen.getByTestId('mock-take-me-to-my-data-modal')).toBeInTheDocument();
+      expect(onContinue).not.toHaveBeenCalled();
+    });
+
+    it('calls onContinue and closes the modal when Done is clicked in the modal', () => {
       setupMocks();
       const onContinue = jest.fn();
       renderStep({ onContinue });
       fireEvent.click(screen.getByTestId('detectAndReviewStep-continueButton'));
+      fireEvent.click(screen.getByTestId('mock-modal-doneButton'));
       expect(onContinue).toHaveBeenCalledTimes(1);
+      expect(screen.queryByTestId('mock-take-me-to-my-data-modal')).not.toBeInTheDocument();
     });
 
     it('shows Back button when onBack is provided', () => {
